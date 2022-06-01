@@ -191,4 +191,55 @@ router();
 - 또한 기존에는 `appendChild`를 사용해 DOM을 직접 건드려 `element`를 추가하였는데, 이 경우를 `백틱`을 사용하여 innerHTML에 할당해주는 방식으로 변경해주었고, newsList 배열원소에 `ul` 태그를 추가해 준 뒤 `join('')`메소드를 활용하여 문자열을 만들어 주는 전략을 취할 수도 있음을 배울 수 있었다.
 - 또한 `페이징`을 구현하기 위해 전역 객체인 `store`를 사용하여 `currentPage`를 선언한 뒤 해당 `currentPage`를 사용해 목록을 추가해줌으로써 상태를 관리할 수 있게 구현하였다. 
 - 이전 페이지와 다음페이지에서의 버그를 잡기위해 `방어코드`를 작성하였다.
-- 
+
+#### 기존 DOM API방식에서 문자열방식으로 고친뒤 템플릿 방식으로 고치기
+
+```js
+function newsFeed(){
+    const newsFeed = getData(NEWS_URL);
+    const newsList = [];
+    const maxPage = Math.ceil(newsFeed.length / 10);
+    let template = `
+        <div>
+            <h1>Hacker News</h1>
+            <ul>
+                {{__news_feed__}}
+            </ul>
+            <div>
+                <a href='#/page/{{__prev_page__}}'>이전 페이지</a>
+                <a href='#/page/'{{__next_page__}}>다음 페이지</a>
+            </div>
+        </div>
+    `;
+    
+    for(let i = (store.currentPage - 1) * 10; i < store.currentPage*10; i++)
+    {
+        newsList.push(`<li>
+                            <a href='#/show/${newsFeed[i].id}'>
+                                ${newsFeed[i].title} (${newsFeed[i].comments_count})         
+                            </a>
+                        </li>`);   
+    }
+    
+    template = template.replace('{{__news_feed__}}', newsList.join(''));
+    template = template.replace('{{__prev_page__}}', store.currentPage > 1 ? store.currentPage - 1 : 1);
+    template = template.replace('{{__next_page__}}', store.currentPage === maxPage ? store.currentPage: store.currentPage + 1);
+
+    container.innerHTML = template;
+}
+```
+- 기존 `newsFeed()` 함수를 DOM API를 사용하는 방식에서 문자열을 사용한 방식으로 변경하였다. 
+- 다시 문자열 방식에서 템플릿 형식으로 바꾼형태가 위의 코드이다.
+- 이렇게 템플릿 형식으로 바꾸게되면 기존 문자열 방식에서 보다 해당 UI의 구조가 명확하게 보인다.
+- 어떤 데이터가 어디에 들어갈 것인지 마킹된 위치도 정확하게 볼 수 있다. 
+- 구조적으로 더욱 명확하게 보기 위함이다. => 즉 결국에는 복잡도를 줄이기 위한 기법이다.
+
+#### 템플릿 방식의 단점 
+- UI 구조를 선명하게 볼 수 있다는 장점이 있는 반면, for문을 이용해서 li 태그를 따로 만들고 마킹된 값의 개수 만큼 `replace()`함수를 호출하는 모습을 확인할 수 있다. 
+- 즉, 템플릿 내에 마킹된 값(데이터)의 개수가 많아지면 그만큼 `replace()`함수를 호출해야한다.
+- 템플릿 방식을 완전하게 작성하려면 꽤 여러가지 기능(템플릿라이브러리)을 추가해야하는데 난이도가 높다.
+- 추천하자면 `Hanldebars`라는 템플릿 라이브러리가 존재한다.
+- 해커 뉴스 프로젝트를 `Handlebars`를 사용해보는 것을 적극 추천한다.
+- 결과적으로 템플릿 방식은 컨셉만을 알려주기 위해 작성된 코드 구조이고, 실제로 단점이 많기에 잘 사용해야 한다. 이때 완전하게 구현하고 싶다면 `템플릿 라이브러리`를 사용해보자
+
+
