@@ -253,3 +253,6 @@ function newsFeed(){
     - 초기에는 ICON만 제공하는 사이트였는데 현재는 많은 기능이 추가되었다.
     - 적용하기 위해서는 CDN을 활용한다.
 - CDN을 찾는데 도움이 되는 사이트는 [CDNJS](https://cdnjs.com/)라는 사이트가 있다.
+- `Font Awesome`에서도 `TailwindCss` 처럼 클래스를 제공하고 Document를 읽어보고 활용할 수 있다. 
+- 추가적으로 `Font Awesome`의 클래스명은 `fa ... ` 같은 형태를 가지고 있다.
+
