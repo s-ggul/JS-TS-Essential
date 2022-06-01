@@ -27,7 +27,7 @@ function newsFeed(){
             </ul>
             <div>
                 <a href='#/page/{{__prev_page__}}'>이전 페이지</a>
-                <a href='#/page/'{{__next_page__}}>다음 페이지</a>
+                <a href='#/page/{{__next_page__}}'>다음 페이지</a>
             </div>
         </div>
     `;
