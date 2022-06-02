@@ -256,3 +256,51 @@ function newsFeed(){
 - `Font Awesome`에서도 `TailwindCss` 처럼 클래스를 제공하고 Document를 읽어보고 활용할 수 있다. 
 - 추가적으로 `Font Awesome`의 클래스명은 `fa ... ` 같은 형태를 가지고 있다.
 
+##### 댓글, 대댓글 구현하기
+```js
+function newsDetail(){
+    
+    ... 이전 코드 생략
+    
+    function makeComment(comments, called = 0){ // called 의 기본값을 0으로 함으로써 초기값을 설정.
+        const commentString = [];
+
+        for(let i =0; i < comments.length; i++){
+            commentString.push(`
+            <div style="padding-left: ${called * 40}px;" class="mt-4">
+                <div class="text-gray-400">
+                    <i class="fa fa-sort-up mr-2"></i>
+                    <strong>${comments[i].user}</strong> ${comments[i].time_ago}
+                </div>
+                <p class="text-gray-700">${comments[i].content}</p>
+            </div>   
+            `);
+
+            if(comments[i].comments.length > 0){
+                commentString.push(makeComment(comments[i].comments, called + 1));
+            }
+        }
+
+        return commentString.join('');
+    }
+
+    container.innerHTML = template.replace('{{__comments__}}', makeComment(newsContent.comments));
+}
+
+```
+
+###### 1. comment와 같이 탐색하기 어려운 데이터를 구현함에 있어 구조 정의하기.
+- comment(댓글)의 경우 comment에 하위에 또 comment가 있는 depth 가 깊어지는 형태로 되어있어 총 comment가 몇개인지 알기 어렵다. 그러한 데이터를 처리하는데 있어 채택할 수 있는 방법을 강구한다.
+- comment의 ui를 만드는 것은 함수로 만들어야 함은 자명하다. => 댓글이 여러개다 라고 생각하면 반복해서 불리는 구조일테니 UI를 만들기위해 함수로 정의한다.
+
+###### 2. 대댓글, 대대댓글 ... 데이터 탐색하기.
+- 재귀호출을 통해 해당 댓글의 댓글 대댓글... 까지 모두 달아준다. => 하나의 comment를 확인할 때 만일 해당 comments의 하위에 comments 배열의 길이가 0보다 큰 경우에 재귀를 수행함.
+  - 이렇게 끝을 알 수 없는 데이터 구조에서 해당 데이터를 탐색할 때 자주 사용되는 테크닉이고 익숙해져야한다.
+
+###### 3. 하위 댓글들에 대한 padding-left 계산하기.
+- 재귀 호출이 한층씩 깊어질때마다 이전 댓글의 대댓글이라는 의미이기 때문에 `makeComment()`함수의 인자로 called를 추가하여 `depth`가 몇인지 체크하고, 해당 `depth`를 이용해 `padding-left`값에 변화를 준다. 
+
+
+###### 정리
+- 이번 댓글 및 대댓글 구현에서 여러가지 테크닉이 나왔다. `재귀`, `대댓글, 대대댓글 별 padding-left 값 처리` 등등 익숙하지 않더라도 숙달할 수 있도록 해보자.
+
