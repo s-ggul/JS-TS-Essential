@@ -16,9 +16,22 @@ function getData(url){
     return JSON.parse(ajax.response);
 }
 
+function makeFeeds(feeds){
+    for(let i = 0; i < feeds.length; i++){
+        feeds[i].read = false;
+    }
+
+    return feeds;
+}
+
 function newsFeed(){
-    const newsFeed = getData(NEWS_URL);
+    let newsFeed = store.feeds;
     const newsList = [];
+
+    if(newsFeed.length === 0){
+        newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    }
+
     const maxPage = Math.ceil(newsFeed.length / 10);
     let template = `
     <div class="bg-gray-600 min-h-screen">
@@ -48,7 +61,7 @@ function newsFeed(){
     for(let i = (store.currentPage - 1) * 10; i < store.currentPage*10; i++)
     {
         newsList.push(`
-        <div class="p-6 ${newsFeed[i].read ? 'bg-red-500' : 'bg-white'} mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100">
+        <div class="p-6 ${newsFeed[i].read ? 'bg-blue-500' : 'bg-white'} mt-6 rounded-lg shadow-md transition-colors duration-500 hover:bg-green-100">
             <div class="flex">
             <div class="flex-auto">
                 <a href="#/show/${newsFeed[i].id}">${newsFeed[i].title}</a>  
@@ -100,7 +113,8 @@ function newsDetail(){
       <div class="h-full border rounded-xl bg-white m-6 p-4 ">
         <h2>${newsContent.title}</h2>
         <div class="text-gray-400 h-20">
-          ${newsContent.content}
+          ${newsContent.content // 컨텐츠가 안넘오옴 API로 제공이 안되는듯함
+        } 
         </div>
 
         {{__comments__}}
@@ -108,6 +122,13 @@ function newsDetail(){
       </div>
     </div>
     `;
+
+    for (let i = 0; i < store.feeds.length; i++){
+        if(store.feeds[i].id === Number(id)){
+            store.feeds[i].read = true;
+            break;
+        }
+    }
 
     // comment(댓글)의 경우 comment에 하위에 또 comment가 있는 depth 가 깊어지는 형태로 되어있어 
     // 총 comment가 몇개인지 알기 어렵다. 그러한 데이터를 처리하는데 있어 채택할 수 있는 방법을 강구한다.
