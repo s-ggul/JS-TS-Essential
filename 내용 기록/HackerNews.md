@@ -337,4 +337,54 @@ function newsFeed(){
 ```
 
 - 이러한 비효율성도 없애면서 사용자가 읽었는지의 상태도 추가로 구현하기 위해 후자의 방식을 택한다.
-- 
+
+
+```js
+const store = {
+    currentPage : 1,
+    feeds:[],
+};
+
+... 생략
+
+function makeFeeds(feeds){
+    for(let i = 0; i < feeds.length; i++){
+        feeds[i].read = false;
+    }
+
+    return feeds;
+}
+
+function newsFeed(){
+    let newsFeed = store.feeds;
+    const newsList = [];
+
+    if(newsFeed.length === 0){
+        newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    }
+
+    ...이하 생략
+
+}
+
+
+function newsDetail(){
+
+    ... 생략
+
+    for (let i = 0; i < store.feeds.length; i++){
+        if(store.feeds[i].id === Number(id)){
+            store.feeds[i].read = true;
+            break;
+        }
+    }
+
+    ... 생략
+
+}
+
+```
+
+- 글을 읽었는지 안읽었는지 표시해주기 위해 전역 store 객체에 feeds 배열을 추가하였다. 
+- 해당 feeds에서는 `newsFeed()`를 처음 호출할때 getData에 의해 불려온 데이터를 저장할 역할이며 해당 feeds 배열에 저장될때 각각의 newsContent들은 `read`라는 새로운 프로퍼티를 가지고 초기값은 `false`로 초기화 된다.
+- 이후 사용자들이 글을 클릭하여 `newsDetail()` 함수가 실행되면 해당 read 프로퍼티의 값이 true로 바뀌게 되고 이후 다시 `newsFeed()` 함수가 실행될때(다시금 목록을 띄울때) 해당 하는 news의 배경색을 변경한다. 배경색 변경 로직은 해당 태그를 생성하는 곳에 리터럴 템플릿 내 삼항연산자로 표현되어있다. 
